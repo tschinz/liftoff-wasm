@@ -142,7 +142,9 @@ pub fn reset_countdown_to(state: &mut TimerState) {
 mod tests {
   use super::*;
 
+  // These tests require WASM/JS environment as they use Date::now()
   #[test]
+  #[cfg(target_arch = "wasm32")]
   fn test_countdown_to_new() {
     let target = Date::now() + 3600000.0; // 1 hour from now
     let config = CountdownToConfig::new(target as u64);
@@ -153,11 +155,43 @@ mod tests {
   }
 
   #[test]
+  #[cfg(target_arch = "wasm32")]
   fn test_countdown_to_past() {
     let target = Date::now() - 1000.0; // 1 second ago
     let config = CountdownToConfig::new(target as u64);
 
     assert!(config.is_complete);
     assert!(config.is_in_past());
+  }
+
+  // Non-WASM test that directly tests the logic without Date::now()
+  #[test]
+  fn test_countdown_to_direct() {
+    // Create a config with a known target (far in the future)
+    let target_ms = 2000000000000u64; // Year 2033
+    let config = CountdownToConfig {
+      target_ms,
+      remaining_ms: 1000000,
+      is_complete: false,
+    };
+
+    assert!(!config.is_complete);
+    assert!(!config.is_in_past());
+    assert_eq!(config.absolute_remaining(), 1000000);
+  }
+
+  #[test]
+  fn test_countdown_to_past_direct() {
+    // Create a config with negative remaining time
+    let target_ms = 1000000000000u64; // Past timestamp
+    let config = CountdownToConfig {
+      target_ms,
+      remaining_ms: -5000,
+      is_complete: true,
+    };
+
+    assert!(config.is_complete);
+    assert!(config.is_in_past());
+    assert_eq!(config.absolute_remaining(), 5000);
   }
 }

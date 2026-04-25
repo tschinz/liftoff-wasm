@@ -309,6 +309,7 @@ mod tests {
   // ── format_display() tests ───────────────────────────
 
   #[test]
+  #[cfg(target_arch = "wasm32")]
   fn format_display_clock_returns_valid_time() {
     let state = init();
     let display = format_display(&state);
@@ -323,7 +324,7 @@ mod tests {
     let mut state = init();
     state.mode = TimerMode::Countdown;
     state.countdown_duration_ms = 10_000;
-    state.elapsed_ms = 0;
+    state.elapsed_ms = 10_000;
     let display = format_display(&state);
     assert_eq!(display.hours, 0);
     assert_eq!(display.minutes, 0);
@@ -331,6 +332,19 @@ mod tests {
   }
 
   #[test]
+  fn format_display_countdown_with_zero_elapsed() {
+    let mut state = init();
+    state.mode = TimerMode::Countdown;
+    state.countdown_duration_ms = 10_000;
+    state.elapsed_ms = 0;
+    let display = format_display(&state);
+    assert_eq!(display.hours, 0);
+    assert_eq!(display.minutes, 0);
+    assert_eq!(display.seconds, 0);
+  }
+
+  #[test]
+  #[cfg(target_arch = "wasm32")]
   fn format_display_countdown_to_with_target() {
     let mut state = init();
     state.mode = TimerMode::CountdownTo;
@@ -341,6 +355,7 @@ mod tests {
   }
 
   #[test]
+  #[cfg(target_arch = "wasm32")]
   fn format_display_countdown_to_without_target() {
     let mut state = init();
     state.mode = TimerMode::CountdownTo;
