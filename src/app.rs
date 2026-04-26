@@ -254,15 +254,13 @@ pub fn app() -> Html {
         console::log_1(&format!("CountdownTo scroll: unit={}, delta={}, adjustment={}", unit, delta, adjustment_ms).into());
 
         // Get current target or initialize to 1 hour from now
-        let current_target = new_state.target_timestamp_ms.unwrap_or_else(|| {
-          (js_sys::Date::now() + 3600000.0) as u64
-        });
+        let current_target = new_state.target_timestamp_ms.unwrap_or_else(|| (js_sys::Date::now() + 3600000.0) as u64);
 
         let new_target = (current_target as i64 + adjustment_ms).max(js_sys::Date::now() as i64);
         new_state.target_timestamp_ms = Some(new_target as u64);
-        
+
         console::log_1(&format!("New target: {}", new_target).into());
-        
+
         state.set(new_state);
       }
     })

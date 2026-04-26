@@ -244,25 +244,36 @@ body.theme-light {
 
 .time-display-container {
   width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--sp-sm);
+  padding: 0 var(--sp-sm);
+  box-sizing: border-box;
+}
+
+.time-display-container > * {
+  max-width: 100%;
 }
 
 .time-display-value {
   font-family: var(--font-mono);
-  font-size: clamp(3.5rem, 15vw, 8rem);
+  font-size: clamp(2.5rem, 10vw, 6rem);
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 0;
+  max-width: 100%;
+  width: fit-content;
+  white-space: nowrap;
+  overflow: visible;
   transition: var(--transition-theme);
   user-select: none;
-  overflow: hidden;
   position: relative;
   font-variant-numeric: tabular-nums;
 }
@@ -325,11 +336,145 @@ body.theme-light {
   color: #ffffff;
 }
 
+/* Container for digit with mobile controls */
+.digit-with-controls {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  gap: 0.125rem;
+}
+
+/* Mobile increment/decrement buttons */
+.digit-control {
+  display: none; /* Hidden by default (desktop) */
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.5rem;
+  line-height: 1;
+  padding: 0.125rem 0.25rem;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  user-select: none;
+  touch-action: manipulation;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.digit-control:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+.digit-control:active {
+  background: var(--accent);
+  color: #ffffff;
+  transform: scale(0.95);
+}
+
+.digit-control-up {
+  margin-bottom: -0.25rem;
+}
+
+.digit-control-down {
+  margin-top: -0.25rem;
+}
+
+/* Show controls on touch devices and small screens */
+@media (hover: none) and (pointer: coarse), (max-width: 768px) {
+  .digit-control {
+    display: flex;
+  }
+
+  .digit-with-controls .time-digit {
+    cursor: default !important;
+    margin: 0.125rem 0;
+  }
+}
+
+/* Make controls larger on very small screens */
+@media (max-width: 480px) {
+  .digit-control {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.375rem;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .digit-with-controls {
+    gap: 0.25rem;
+  }
+}
+
 .time-separator {
   color: var(--text-tertiary);
   margin: 0 0.1em;
   animation: separator-pulse 1s ease-in-out infinite;
   font-weight: 300;
+}
+
+/* Digit with controls container */
+.digit-with-controls {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  gap: 0.125rem;
+}
+
+/* Mobile touch control buttons */
+.digit-control {
+  display: none; /* Hidden by default, shown on touch devices */
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.5em;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+}
+
+.digit-control:hover {
+  background: var(--accent);
+  color: #ffffff;
+  transform: scale(1.1);
+  border-color: var(--accent);
+}
+
+.digit-control:active {
+  transform: scale(0.95);
+  background: var(--accent-secondary);
+}
+
+/* Show controls on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .digit-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Alternative: Show controls on small screens */
+@media (max-width: 768px) {
+  .digit-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @keyframes separator-pulse {
@@ -356,6 +501,89 @@ body.theme-light {
   vertical-align: middle;
   transition: var(--transition-theme);
   user-select: none;
+  flex-shrink: 0; /* Prevent shrinking */
+  min-width: fit-content; /* Ensure it doesn't get cut off */
+}
+
+/* Prefix shown above large units */
+.time-prefix-large {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-xs);
+  transition: var(--transition-theme);
+  user-select: none;
+  text-align: center;
+}
+
+/* Container for two-line display (large units + time) */
+.time-display-multiline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  width: 100%;
+  max-width: 100%;
+}
+
+/* First line: years, months, days */
+.time-display-large-units {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 6vw, 4rem);
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  white-space: nowrap;
+  transition: var(--transition-theme);
+  max-width: 100%;
+  width: fit-content;
+}
+
+/* Unit labels (y, mo, d) */
+.time-unit-label {
+  font-size: 0.5em;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  margin-left: 0.1em;
+  margin-right: 0.3em;
+  transition: var(--transition-theme);
+}
+
+/* Scale entire time display to fit viewport on mobile */
+@media (max-width: 768px) {
+  .timer-display {
+    padding: 0 var(--sp-sm);
+  }
+
+  .time-display-value {
+    font-size: clamp(2rem, 12vw, 4rem);
+    gap: 0.05em;
+  }
+
+  .time-prefix {
+    font-size: 0.45em;
+    margin-right: 0.2em;
+  }
+
+  .time-prefix-large {
+    font-size: clamp(1.2rem, 4vw, 2.5rem);
+  }
+
+  .time-display-large-units {
+    font-size: clamp(1.5rem, 7vw, 3.5rem);
+  }
+
+  .time-separator {
+    margin: 0 0.05em;
+  }
+
+  .time-digit {
+    padding: 0.0625rem 0.125rem;
+  }
 }
 
 /* Large screen: make digits bigger */
@@ -494,12 +722,60 @@ body.theme-light {
 
 @media (max-width: 480px) {
   .app-container {
-    padding: var(--sp-md);
-    gap: var(--sp-lg);
+    padding: var(--sp-sm);
+    gap: var(--sp-md);
+  }
+
+  .timer-display {
+    padding: 0 var(--sp-xs);
   }
 
   .time-display-value {
-    font-size: clamp(3rem, 18vw, 5rem);
+    font-size: clamp(1.5rem, 8vw, 3rem);
+    gap: 0.03em;
+    line-height: 1.3;
+  }
+
+
+
+  .time-prefix-large {
+    font-size: clamp(1rem, 5vw, 2rem);
+    margin-bottom: var(--sp-xxs);
+  }
+
+  .time-display-multiline {
+    gap: var(--sp-xs);
+  }
+
+  .time-display-large-units {
+    font-size: clamp(1rem, 5vw, 2rem);
+    gap: 0.2em;
+  }
+
+  .time-unit-label {
+    font-size: 0.45em;
+    margin-left: 0.05em;
+    margin-right: 0.2em;
+  }
+
+  .time-prefix {
+    font-size: 0.45em;
+    margin-right: 0.15em;
+  }
+
+  .time-separator {
+    margin: 0 0.03em;
+    font-size: 0.9em;
+  }
+
+  .time-digit {
+    padding: 0.0625rem 0.0625rem;
+    min-width: 1.5ch;
+  }
+
+  .time-millis {
+    font-size: 0.3em;
+    margin-left: 0.1em;
   }
 
   .mode-switcher {
@@ -509,6 +785,21 @@ body.theme-light {
   .mode-tab {
     font-size: 0.8rem;
     padding: var(--sp-sm);
+  }
+}
+
+@media (max-width: 360px) {
+  .time-display-value {
+    font-size: clamp(1.5rem, 11vw, 3rem);
+    white-space: nowrap;
+  }
+
+  .time-prefix {
+    font-size: 0.35em;
+  }
+
+  .time-digit {
+    min-width: 1.2ch;
   }
 }
 
