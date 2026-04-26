@@ -1,8 +1,77 @@
-use web_sys::{Event, HtmlInputElement, WheelEvent};
+use web_sys::{Event, HtmlInputElement, MouseEvent, WheelEvent};
 use yew::prelude::*;
 
 use crate::model::{Theme, TimeDisplay, TimerMode, TimerState};
 use crate::update::Msg;
+
+/// Props for digit with mobile controls
+#[derive(Properties, PartialEq)]
+struct DigitWithControlsProps {
+  pub value: String,
+  pub unit: &'static str,
+  pub on_change: Option<Callback<(String, f64)>>,
+  pub on_wheel: Callback<WheelEvent>,
+  pub title: Option<&'static str>,
+  pub is_scrollable: bool,
+}
+
+/// A time digit with +/- buttons for mobile
+#[function_component(DigitWithControls)]
+fn digit_with_controls(props: &DigitWithControlsProps) -> Html {
+  let DigitWithControlsProps {
+    value,
+    unit,
+    on_change,
+    on_wheel,
+    title,
+    is_scrollable,
+  } = props;
+
+  let increment = {
+    let on_change = on_change.clone();
+    let unit = *unit;
+    Callback::from(move |e: MouseEvent| {
+      e.prevent_default();
+      if let Some(callback) = &on_change {
+        callback.emit((unit.to_string(), 1.0));
+      }
+    })
+  };
+
+  let decrement = {
+    let on_change = on_change.clone();
+    let unit = *unit;
+    Callback::from(move |e: MouseEvent| {
+      e.prevent_default();
+      if let Some(callback) = &on_change {
+        callback.emit((unit.to_string(), -1.0));
+      }
+    })
+  };
+
+  html! {
+    <div class="digit-with-controls">
+      if *is_scrollable {
+        <button class="digit-control digit-control-up" onclick={increment} aria-label={format!("Increase {}", unit)}>
+          {"▲"}
+        </button>
+      }
+      <span
+        class="time-digit"
+        title={*title}
+        style={is_scrollable.then_some("cursor: ns-resize;")}
+        onwheel={on_wheel.clone()}
+      >
+        {value}
+      </span>
+      if *is_scrollable {
+        <button class="digit-control digit-control-down" onclick={decrement} aria-label={format!("Decrease {}", unit)}>
+          {"▼"}
+        </button>
+      }
+    </div>
+  }
+}
 
 /// Props for the time display component
 #[derive(Properties, PartialEq)]
@@ -109,37 +178,38 @@ pub fn time_display_component(props: &TimeDisplayProps) -> Html {
   };
 
   html! {
-      <div class="time-display-container">
-          <div class={display_class} aria_label={format!("Timer display: {time_str}")}>
-              {
-                  if let Some(prefix_str) = prefix {
-                      html! {
-                          <span class="time-prefix" style="margin-right: 0.3em; color: var(--text-tertiary);">
-                              {prefix_str}
-                          </span>
-                      }
-                  } else {
-                      html! {}
-                  }
-              }
-              {
-                  if time_display.has_large_units() {
-                      // Show long-form units (years, months, days) then HH:MM:SS format
-                      // Show all units including zeros once any larger unit appears
-                      html! {
-                          <>
+      <div class="time-display-container" aria-label={format!("Timer display: {}", time_str)}>
+          // Show prefix on its own line for large units
+          {
+              if time_display.has_large_units() {
+                  // Two-line layout: large units on first line, time on second line
+                  html! {
+                      <div class="time-display-multiline">
+                          // First line: T- prefix followed by years, months, days
+                          <div class="time-display-large-units">
+                              {
+                                  if let Some(prefix_str) = prefix {
+                                      html! {
+                                          <span class="time-prefix">
+                                              {prefix_str}
+                                          </span>
+                                      }
+                                  } else {
+                                      html! {}
+                                  }
+                              }
                               {if time_display.years > 0 {
                                   html! {
                                       <>
-                                          <span
-                                              class="time-digit"
+                                          <DigitWithControls
+                                              value={time_display.years_str()}
+                                              unit="years"
+                                              on_change={on_wheel.clone()}
+                                              on_wheel={years_wheel.clone()}
                                               title={is_scrollable.then_some("Scroll to adjust years")}
-                                              style={is_scrollable.then_some("cursor: ns-resize;")}
-                                              onwheel={years_wheel.clone()}
-                                          >
-                                              {time_display.years_str()}
-                                          </span>
-                                          <span class="time-separator" aria_hidden="true">{"y "}</span>
+                                              is_scrollable={is_scrollable}
+                                          />
+                                          <span class="time-unit-label">{"y"}</span>
                                       </>
                                   }
                               } else {
@@ -148,15 +218,15 @@ pub fn time_display_component(props: &TimeDisplayProps) -> Html {
                               {if time_display.years > 0 || time_display.months > 0 {
                                   html! {
                                       <>
-                                          <span
-                                              class="time-digit"
+                                          <DigitWithControls
+                                              value={time_display.months_str()}
+                                              unit="months"
+                                              on_change={on_wheel.clone()}
+                                              on_wheel={months_wheel.clone()}
                                               title={is_scrollable.then_some("Scroll to adjust months")}
-                                              style={is_scrollable.then_some("cursor: ns-resize;")}
-                                              onwheel={months_wheel.clone()}
-                                          >
-                                              {time_display.months_str()}
-                                          </span>
-                                          <span class="time-separator" aria_hidden="true">{"mo "}</span>
+                                              is_scrollable={is_scrollable}
+                                          />
+                                          <span class="time-unit-label">{"mo"}</span>
                                       </>
                                   }
                               } else {
@@ -165,100 +235,115 @@ pub fn time_display_component(props: &TimeDisplayProps) -> Html {
                               {if time_display.years > 0 || time_display.months > 0 || time_display.days > 0 {
                                   html! {
                                       <>
-                                          <span
-                                              class="time-digit"
+                                          <DigitWithControls
+                                              value={time_display.days_str()}
+                                              unit="days"
+                                              on_change={on_wheel.clone()}
+                                              on_wheel={days_wheel.clone()}
                                               title={is_scrollable.then_some("Scroll to adjust days")}
-                                              style={is_scrollable.then_some("cursor: ns-resize;")}
-                                              onwheel={days_wheel.clone()}
-                                          >
-                                              {time_display.days_str()}
-                                          </span>
-                                          <span class="time-separator" aria_hidden="true">{"d "}</span>
+                                              is_scrollable={is_scrollable}
+                                          />
+                                          <span class="time-unit-label">{"d"}</span>
                                       </>
                                   }
                               } else {
                                   html! {}
                               }}
-                              <span
-                                  class="time-digit"
+                          </div>
+
+                          // Second line: hours, minutes, seconds (no prefix)
+                          <div class={display_class}>
+                              <DigitWithControls
+                                  value={format!("{:02}", time_display.hours)}
+                                  unit="hours"
+                                  on_change={on_wheel.clone()}
+                                  on_wheel={hours_wheel.clone()}
                                   title={is_scrollable.then_some("Scroll to adjust hours")}
-                                  style={is_scrollable.then_some("cursor: ns-resize;")}
-                                  onwheel={hours_wheel.clone()}
-                              >
-                                  {format!("{:02}", time_display.hours)}
-                              </span>
-                              <span class="time-separator" aria_hidden="true">{":"}</span>
-                              <span
-                                  class="time-digit"
+                                  is_scrollable={is_scrollable}
+                              />
+                              <span class="time-separator">{":"}</span>
+                              <DigitWithControls
+                                  value={format!("{:02}", time_display.minutes)}
+                                  unit="minutes"
+                                  on_change={on_wheel.clone()}
+                                  on_wheel={minutes_wheel.clone()}
                                   title={is_scrollable.then_some("Scroll to adjust minutes")}
-                                  style={is_scrollable.then_some("cursor: ns-resize;")}
-                                  onwheel={minutes_wheel.clone()}
-                              >
-                                  {format!("{:02}", time_display.minutes)}
-                              </span>
+                                  is_scrollable={is_scrollable}
+                              />
                               {if *show_seconds {
                                   html! {
                                       <>
-                                          <span class="time-separator" aria_hidden="true">{":"}</span>
-                                          <span
-                                              class="time-digit"
+                                          <span class="time-separator">{":"}</span>
+                                          <DigitWithControls
+                                              value={format!("{:02}", time_display.seconds)}
+                                              unit="seconds"
+                                              on_change={on_wheel.clone()}
+                                              on_wheel={seconds_wheel.clone()}
                                               title={is_scrollable.then_some("Scroll to adjust seconds")}
-                                              style={is_scrollable.then_some("cursor: ns-resize;")}
-                                              onwheel={seconds_wheel.clone()}
-                                          >
-                                              {format!("{:02}", time_display.seconds)}
-                                          </span>
+                                              is_scrollable={is_scrollable}
+                                          />
                                       </>
                                   }
                               } else {
                                   html! {}
                               }}
-                          </>
-                      }
-                  } else {
-                      // Show standard HH:MM:SS format
-                      html! {
-                          <>
-                              <span
-                                  class="time-digit"
-                                  title={is_scrollable.then_some("Scroll to adjust hours")}
-                                  style={is_scrollable.then_some("cursor: ns-resize;")}
-                                  onwheel={hours_wheel}
-                              >
-                                  {format!("{:02}", time_display.hours)}
-                              </span>
-                              <span class="time-separator" aria_hidden="true">{":"}</span>
-                              <span
-                                  class="time-digit"
-                                  title={is_scrollable.then_some("Scroll to adjust minutes")}
-                                  style={is_scrollable.then_some("cursor: ns-resize;")}
-                                  onwheel={minutes_wheel}
-                              >
-                                  {format!("{:02}", time_display.minutes)}
-                              </span>
-                              {if *show_seconds {
+                          </div>
+                      </div>
+                  }
+              } else {
+                  // Single line: standard HH:MM:SS format with prefix
+                  html! {
+                      <div class={display_class}>
+                          {
+                              if let Some(prefix_str) = prefix {
                                   html! {
-                                      <>
-                                          <span class="time-separator" aria_hidden="true">{":"}</span>
-                                          <span
-                                              class="time-digit"
-                                              title={is_scrollable.then_some("Scroll to adjust seconds")}
-                                              style={is_scrollable.then_some("cursor: ns-resize;")}
-                                              onwheel={seconds_wheel}
-                                          >
-                                              {format!("{:02}", time_display.seconds)}
-                                          </span>
-                                          <span class="time-millis" aria_hidden="true">{time_display.millis_str()}</span>
-                                      </>
+                                      <span class="time-prefix">
+                                          {prefix_str}
+                                      </span>
                                   }
                               } else {
                                   html! {}
-                              }}
-                          </>
-                      }
+                              }
+                          }
+                          <DigitWithControls
+                              value={format!("{:02}", time_display.hours)}
+                              unit="hours"
+                              on_change={on_wheel.clone()}
+                              on_wheel={hours_wheel}
+                              title={is_scrollable.then_some("Scroll to adjust hours")}
+                              is_scrollable={is_scrollable}
+                          />
+                          <span class="time-separator">{":"}</span>
+                          <DigitWithControls
+                              value={format!("{:02}", time_display.minutes)}
+                              unit="minutes"
+                              on_change={on_wheel.clone()}
+                              on_wheel={minutes_wheel}
+                              title={is_scrollable.then_some("Scroll to adjust minutes")}
+                              is_scrollable={is_scrollable}
+                          />
+                          {if *show_seconds {
+                              html! {
+                                  <>
+                                      <span class="time-separator">{":"}</span>
+                                      <DigitWithControls
+                                          value={format!("{:02}", time_display.seconds)}
+                                          unit="seconds"
+                                          on_change={on_wheel.clone()}
+                                          on_wheel={seconds_wheel}
+                                          title={is_scrollable.then_some("Scroll to adjust seconds")}
+                                          is_scrollable={is_scrollable}
+                                      />
+                                      <span class="time-millis">{time_display.millis_str()}</span>
+                                  </>
+                              }
+                          } else {
+                              html! {}
+                          }}
+                      </div>
                   }
               }
-          </div>
+          }
       </div>
   }
 }
