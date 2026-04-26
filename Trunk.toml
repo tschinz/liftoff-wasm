@@ -1,25 +1,11 @@
+# Trunk build configuration for liftoff-wasm
+# Minimal configuration for maximum compatibility across environments
+
 [build]
-# Build configuration
+# Output directory for built assets
 dist = "dist"
-target = "index.html"
-
-[watch]
-# Directories to watch for changes during development
-ignore = ["dist", "target"]
-
-[serve]
-# Development server configuration
-port = 8080
-address = "127.0.0.1"
 
 [tools]
-# Disable wasm-opt to avoid version compatibility issues in CI/CD
-# Use wasm-bindgen optimization instead which is more stable
+# Disable wasm-opt to prevent "invalid code after misc prefix" errors in CI/CD
+# The Rust compiler's --release flag already provides good optimization (~278KB)
 wasm-opt = false
-
-[wasm-bindgen]
-# Use wasm-bindgen's optimization instead of wasm-opt
-# This is more stable across different environments
-demangle-name-section = true
-dwarf-debug-info = false
-omit-default-module-path = false
