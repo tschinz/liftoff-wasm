@@ -41,7 +41,7 @@ The generated code has been reviewed and adapted where necessary, but may still 
 
 ## Prerequisites
 
-- [Rust toolchain](https://rustup.rs/) (stable)
+- [Rust toolchain](https://rustup.rs/)
 - [Trunk](https://trunkrs.dev/) (WebAssembly bundler)
 - [Just](https://just.systems/) (optional, for convenience)
 - A modern browser with WebAssembly support
@@ -135,8 +135,8 @@ just test-optimized
 - **Scrollable Time Units**: Adjust hours, minutes, seconds, and large units (days, months, years) by scrolling
 - **Dark/Light Themes**: Smooth theme transitions with proper background colors
 - **T-minus/T-plus Prefixes**: Clear indication of countdown state
-- **Zero Value Display**: Shows all time units including zeros for clarity
 - **Responsive Design**: Works on desktop and mobile devices
+- **Seconds and Milliseconds Display**: Shows seconds and milliseconds for precise timing
 
 ## Design Decisions
 

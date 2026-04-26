@@ -272,7 +272,25 @@ pub fn app() -> Html {
   html! {
       <div class="app-container" tabindex="0" onkeydown={on_keydown}>
           <header class="app-header">
-              <h1 class="app-title">{"Liftoff"}</h1>
+              <h1 class="app-title">
+                  <a
+                      href="https://synd.hevs.io/education/infotronics.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="app-logo-link"
+                      title="Visit Infotronics"
+                  >
+                      <img
+                          src={if state.theme == Theme::Dark {
+                              "img/infotronics-dark.svg"
+                          } else {
+                              "img/infotronics-light.svg"
+                          }}
+                          alt="Infotronics"
+                          class="app-logo"
+                      />
+                  </a>
+              </h1>
               <div style="display: flex; gap: 0.5rem;">
                   <button
                       class="theme-toggle"

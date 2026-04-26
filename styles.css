@@ -150,6 +150,55 @@ body.theme-light {
   text-transform: uppercase;
   color: var(--text-secondary);
   user-select: none;
+  display: flex;
+  align-items: center;
+}
+
+.app-logo {
+  height: 2rem;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  transition: var(--transition-theme);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@media (max-width: 480px) {
+  .app-logo {
+    height: 1.5rem;
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-logo {
+    height: 1.25rem;
+    max-width: 120px;
+  }
+}
+
+.app-logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+
+.app-logo-link:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+.app-logo-link:active {
+  transform: scale(0.98);
+}
+
+.app-logo-link:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 /* ───────────────────────────────────────────
