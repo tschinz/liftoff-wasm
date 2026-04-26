@@ -448,3 +448,49 @@ pub fn countdown_controls(props: &CountdownControlsProps) -> Html {
       </div>
   }
 }
+
+/// Props for keyboard shortcuts info component
+#[derive(Properties, PartialEq)]
+pub struct KeyboardShortcutsProps {
+  pub mode: TimerMode,
+}
+
+/// Component that displays keyboard shortcuts information
+#[function_component(KeyboardShortcuts)]
+pub fn keyboard_shortcuts(props: &KeyboardShortcutsProps) -> Html {
+  let KeyboardShortcutsProps { mode } = props;
+
+  let shortcuts = match mode {
+    TimerMode::Clock => {
+      html! {
+        <div class="keyboard-shortcuts">
+          <span class="shortcut-hint">{"↔ Arrow keys to switch modes"}</span>
+        </div>
+      }
+    }
+    TimerMode::Countdown => {
+      html! {
+        <div class="keyboard-shortcuts">
+          <span class="shortcut-hint">{"Scroll to adjust"}</span>
+          <span class="shortcut-separator">{" • "}</span>
+          <span class="shortcut-hint"><kbd>{"Space"}</kbd>{" to start/stop"}</span>
+          <span class="shortcut-separator">{" • "}</span>
+          <span class="shortcut-hint"><kbd>{"R"}</kbd>{" to reset"}</span>
+          <span class="shortcut-separator">{" • "}</span>
+          <span class="shortcut-hint">{"↔ Arrow keys to switch modes"}</span>
+        </div>
+      }
+    }
+    TimerMode::CountdownTo => {
+      html! {
+        <div class="keyboard-shortcuts">
+          <span class="shortcut-hint">{"Scroll to adjust target"}</span>
+          <span class="shortcut-separator">{" • "}</span>
+          <span class="shortcut-hint">{"↔ Arrow keys to switch modes"}</span>
+        </div>
+      }
+    }
+  };
+
+  shortcuts
+}

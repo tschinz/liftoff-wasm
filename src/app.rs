@@ -4,7 +4,7 @@ use yew::prelude::*;
 
 use crate::model::{Theme, TimerMode, TimerState};
 use crate::update::{format_display, update, Msg};
-use crate::view::{CountdownControls, ModeSwitcher, ThemeToggle, TimeDisplayComponent};
+use crate::view::{CountdownControls, KeyboardShortcuts, ModeSwitcher, ThemeToggle, TimeDisplayComponent};
 
 /// The root App component that composes all sub-components
 /// and manages the timer loop.
@@ -251,11 +251,19 @@ pub fn app() -> Html {
           _ => 0,
         };
 
-        if let Some(current_target) = new_state.target_timestamp_ms {
-          let new_target = (current_target as i64 + adjustment_ms).max(js_sys::Date::now() as i64);
-          new_state.target_timestamp_ms = Some(new_target as u64);
-          state.set(new_state);
-        }
+        console::log_1(&format!("CountdownTo scroll: unit={}, delta={}, adjustment={}", unit, delta, adjustment_ms).into());
+
+        // Get current target or initialize to 1 hour from now
+        let current_target = new_state.target_timestamp_ms.unwrap_or_else(|| {
+          (js_sys::Date::now() + 3600000.0) as u64
+        });
+
+        let new_target = (current_target as i64 + adjustment_ms).max(js_sys::Date::now() as i64);
+        new_state.target_timestamp_ms = Some(new_target as u64);
+        
+        console::log_1(&format!("New target: {}", new_target).into());
+        
+        state.set(new_state);
       }
     })
   };
@@ -294,7 +302,7 @@ pub fn app() -> Html {
                   mode={state.mode}
                   show_seconds={state.show_seconds}
                   is_counting_up={state.is_counting_up}
-                  on_wheel={if state.mode == TimerMode::Countdown {
+                  on_wheel={if state.mode == TimerMode::Countdown || state.mode == TimerMode::CountdownTo {
                       Some(on_wheel)
                   } else {
                       None
@@ -306,6 +314,10 @@ pub fn app() -> Html {
               state={(*state).clone()}
               on_switch={on_switch}
               on_tick={on_tick}
+          />
+
+          <KeyboardShortcuts
+              mode={state.mode}
           />
       </div>
   }
