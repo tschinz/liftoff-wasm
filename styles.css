@@ -314,7 +314,7 @@ body.theme-light {
   letter-spacing: -0.02em;
   color: var(--text-primary);
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
   gap: 0;
   max-width: 100%;
@@ -465,8 +465,13 @@ body.theme-light {
 .time-separator {
   color: var(--text-tertiary);
   margin: 0 0.1em;
-  animation: separator-pulse 1s ease-in-out infinite;
+  animation: separator-pulse 2s ease-in-out infinite;
+  animation-delay: 0s;
   font-weight: 300;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  height: 100%;
 }
 
 /* Digit with controls container */
@@ -527,8 +532,12 @@ body.theme-light {
 }
 
 @keyframes separator-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.3; 
+  }
 }
 
 .time-millis {
@@ -765,6 +774,77 @@ body.theme-light {
   }
 }
 
+/* Mobile timer buttons (shown only on touch devices) */
+.mobile-timer-buttons {
+  display: none; /* Hidden by default (desktop) */
+  gap: var(--sp-md);
+  justify-content: center;
+  margin-top: var(--sp-sm);
+}
+
+.mobile-timer-btn {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: var(--sp-md) var(--sp-lg);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition-theme);
+  user-select: none;
+  white-space: nowrap;
+  min-width: 120px;
+  touch-action: manipulation;
+}
+
+.start-stop-btn {
+  background: var(--accent);
+  color: #ffffff;
+  border: 2px solid var(--accent);
+}
+
+.start-stop-btn:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.start-stop-btn:active {
+  transform: scale(0.98);
+}
+
+.reset-btn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border);
+}
+
+.reset-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-tertiary);
+}
+
+.reset-btn:active {
+  transform: scale(0.98);
+}
+
+.mobile-timer-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Show mobile timer buttons on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-timer-buttons {
+    display: flex;
+  }
+}
+
+/* Hide keyboard shortcuts on mobile/touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .keyboard-shortcuts {
+    display: none !important;
+  }
+}
+
 /* ───────────────────────────────────────────
    9. Responsive adjustments
    ─────────────────────────────────────────── */
@@ -815,6 +895,7 @@ body.theme-light {
   .time-separator {
     margin: 0 0.03em;
     font-size: 0.9em;
+    align-self: center;
   }
 
   .time-digit {
@@ -979,6 +1060,11 @@ body.theme-light {
 
   .shortcut-hint kbd {
     padding: 0.1rem 0.3rem;
+  }
+
+  /* Also show mobile timer buttons on small screens even without touch */
+  .mobile-timer-buttons {
+    display: flex;
   }
 }
 
