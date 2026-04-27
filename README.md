@@ -137,6 +137,7 @@ just test-optimized
 - **T-minus/T-plus Prefixes**: Clear indication of countdown state
 - **Responsive Design**: Works on desktop and mobile devices
 - **Seconds and Milliseconds Display**: Shows seconds and milliseconds for precise timing
+- **Mobile Support**: Touch-friendly controls and responsive layout for mobile devices
 
 ## Design Decisions
 

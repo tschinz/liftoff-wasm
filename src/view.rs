@@ -458,10 +458,40 @@ pub fn countdown_controls(props: &CountdownControlsProps) -> Html {
       let is_complete = state.is_counting_up || state.elapsed_ms == 0;
       let status_text = if is_complete { "Elapsed Time" } else { "Time Remaining" };
 
+      let on_start_stop = {
+        let on_tick = on_tick.clone();
+        Callback::from(move |_| {
+          on_tick.emit(Msg::ToggleCountdownPause);
+        })
+      };
+
+      let on_reset = {
+        let on_tick = on_tick.clone();
+        Callback::from(move |_| {
+          on_tick.emit(Msg::ResetCountdown);
+        })
+      };
+
       html! {
           <div class="countdown-controls">
               <div class="countdown-status">
                   {status_text}
+              </div>
+              <div class="mobile-timer-buttons">
+                  <button
+                      class="mobile-timer-btn start-stop-btn"
+                      onclick={on_start_stop}
+                      aria-label={if state.is_running { "Stop timer" } else { "Start timer" }}
+                  >
+                      {if state.is_running { "⏸ Stop" } else { "▶ Start" }}
+                  </button>
+                  <button
+                      class="mobile-timer-btn reset-btn"
+                      onclick={on_reset}
+                      aria-label="Reset timer"
+                  >
+                      {"↻ Reset"}
+                  </button>
               </div>
           </div>
       }
